@@ -17,11 +17,11 @@ def get_service():
     """Autentikasi Google Calendar dan menghasilkan service client."""
     creds = None
 
-    # Cek token login
+    #Ceklogin
     if os.path.exists('token.json'):
         creds = Credentials.from_authorized_user_file('token.json', SCOPES)
 
-    # Jika belum login / token expired
+    # ika belum login/token expired
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
@@ -30,16 +30,13 @@ def get_service():
                 'credentials.json', SCOPES)
             creds = flow.run_local_server(port=0)
 
-        # Simpan token
+        #Menyimpan token
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
 
     return build('calendar', 'v3', credentials=creds)
 
 
-# ========================
-#  PARSING TANGGAL AMAN
-# ========================
 
 def parse_datetime_indonesia(text):
     """
@@ -61,22 +58,18 @@ def parse_datetime_indonesia(text):
     if not dt:
         return None
 
-    # Jika dateparser memberi datetime timezone-aware → convert ke WIB
+    # Jika user memberi datetime timezone-aware → convert ke WIB
     if dt.tzinfo is not None:
         dt = dt.astimezone(WIB)
         dt = dt.replace(tzinfo=None)
 
-    # Jika dateparser memberi tahun aneh → pakai tahun ini
+    # Jika user memberi tahun aneh → pakai tahun ini
     current_year = datetime.datetime.now().year
     if dt.year < current_year - 1 or dt.year > current_year + 1:
         dt = dt.replace(year=current_year)
 
     return dt
 
-
-# ========================
-#  LIST EVENTS
-# ========================
 
 def list_events(date_text):
     """Menampilkan agenda pada tanggal tertentu."""
@@ -110,9 +103,6 @@ def list_events(date_text):
     return hasil
 
 
-# ========================
-#  ADD EVENT
-# ========================
 
 def add_event(date_text, title):
     """Menambah agenda baru ke Google Calendar."""
